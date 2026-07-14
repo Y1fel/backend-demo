@@ -9,7 +9,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/community_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    url:
     username: root
     password: password
 
@@ -25,7 +25,7 @@ spring:
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*.xml
-  type-aliases-package: com.community.platform
+  type-aliases-package: com.y1fel.backend
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
