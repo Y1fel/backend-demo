@@ -8,10 +8,10 @@ spring:
     name: backend-demo
 
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name:
     url:
-    username: root
-    password: password
+    username:
+    password:
 
   data:
     redis:
