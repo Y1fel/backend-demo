@@ -1,4 +1,7 @@
 package com.y1fel.backend.workorder.mapper;
 
-public class WorkOrderMapper {
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.y1fel.backend.workorder.entity.WorkOrder;
+
+public interface WorkOrderMapper extends BaseMapper<WorkOrder> {
 }

@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class DashBoardStatsVo {
     private long todo;
-    private long day;
+    private long today;
     private long done;
 }
