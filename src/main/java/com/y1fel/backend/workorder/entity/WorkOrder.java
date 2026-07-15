@@ -16,10 +16,21 @@ public class WorkOrder {
     private String phone;
     private String address;
     private String description;
+    private String images;
     private String status;
+
     private String handleType;
     private String handleResult;
+    private LocalDateTime handleTime;
+    private Long handlerId;
+    private String handlerName;
+
     private LocalDateTime completeTime;
+    private String rejectReason;
+    private LocalDateTime auditTime;
+    private Long auditorId;
+    private String auditorName;
+
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }
