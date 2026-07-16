@@ -1,7 +1,6 @@
 package com.y1fel.backend.common.exception;
 
 import lombok.Getter;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @Getter
 public class BizException extends RuntimeException {
@@ -9,7 +8,7 @@ public class BizException extends RuntimeException {
 
     public BizException(String message) {
         super(message);
-        this.code = 500;
+        this.code = 400;
     }
 
     public BizException(Integer code, String message) {
