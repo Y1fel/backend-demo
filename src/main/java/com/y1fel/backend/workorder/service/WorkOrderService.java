@@ -9,6 +9,7 @@ import com.y1fel.backend.common.util.UserContext;
 import com.y1fel.backend.operationlog.service.OperationLogService;
 import com.y1fel.backend.workorder.dto.AuditRejectRequest;
 import com.y1fel.backend.workorder.dto.HandleWorkOrderRequest;
+import com.y1fel.backend.workorder.dto.SubmitWorkOrderRequest;
 import com.y1fel.backend.workorder.dto.WorkOrderQuery;
 import com.y1fel.backend.workorder.entity.WorkOrder;
 import com.y1fel.backend.workorder.mapper.WorkOrderMapper;
@@ -51,6 +52,35 @@ public class WorkOrderService {
         if (order == null) {
             throw new BizException("工单不存在");
         }
+        return WorkOrderVo.from(order);
+    }
+
+    @Transactional
+    public WorkOrderVo submit(SubmitWorkOrderRequest request) {
+        LocalDateTime now = LocalDateTime.now();
+
+        WorkOrder order = new WorkOrder();
+        order.setReporter(request.getReporter());
+        order.setPhone(request.getPhone());
+        order.setAddress(request.getAddress());
+        order.setDescription(request.getDescription());
+        order.setImages(request.getImages() != null
+                ? String.join(",", request.getImages())
+                : null);
+        order.setStatus("pending");
+        order.setCreateTime(now);
+        order.setUpdateTime(now);
+
+        workOrderMapper.insert(order);
+
+        operationLogService.record(
+                request.getReporter(),
+                "operation",
+                "workorder",
+                "提交工单：" + order.getId(),
+                null
+        );
+
         return WorkOrderVo.from(order);
     }
 

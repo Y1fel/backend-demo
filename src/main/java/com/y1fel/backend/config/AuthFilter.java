@@ -31,6 +31,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
         return "OPTIONS".equalsIgnoreCase(request.getMethod())
                 || "/auth/login".equals(path)
+                || "/workorder/submit".equals(path)
                 || "/error".equals(path);
     }
 

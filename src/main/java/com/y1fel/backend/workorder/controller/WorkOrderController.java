@@ -4,6 +4,7 @@ import com.y1fel.backend.common.response.PageResult;
 import com.y1fel.backend.common.response.Result;
 import com.y1fel.backend.workorder.dto.AuditRejectRequest;
 import com.y1fel.backend.workorder.dto.HandleWorkOrderRequest;
+import com.y1fel.backend.workorder.dto.SubmitWorkOrderRequest;
 import com.y1fel.backend.workorder.dto.WorkOrderQuery;
 import com.y1fel.backend.workorder.service.WorkOrderService;
 import com.y1fel.backend.workorder.vo.WorkOrderVo;
@@ -58,5 +59,10 @@ public class WorkOrderController {
     public Result<Void> auditReject(@PathVariable Long id, @Valid @RequestBody AuditRejectRequest request) {
         workOrderService.auditReject(id, request);
         return Result.success();
+    }
+
+    @PostMapping("/submit")
+    public Result<WorkOrderVo> submit(@Valid @RequestBody SubmitWorkOrderRequest request) {
+        return Result.success(workOrderService.submit(request));
     }
 }
