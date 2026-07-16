@@ -58,7 +58,8 @@ public class AuthFilter extends OncePerRequestFilter {
 
             SysUser user = sysUserMapper.selectById(Long.valueOf(userId));
 
-            if (user == null || Integer.valueOf(1).equals(user.getDeleted()) || !"enabled".equals(user.getStatus())) {
+            if (user == null || Integer.valueOf(1).equals(user.getDeleted()) || !"enabled".equals(user.getStatus())
+               || !"admin".equals(user.getRole())) {
                 writeUnauthorized(response, "用户不可用");
                 return;
             }

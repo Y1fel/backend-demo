@@ -67,6 +67,10 @@ public class AuthService {
             throw new BizException(401, "用户已被禁用");
         }
 
+        if(!"admin".equals(user.getRole())) {
+            throw new BizException(403, "当前仅允许管理员登录");
+        }
+
         return UserInfoVo.from(user, getOrgName(user.getOrgId()));
     }
 

@@ -1,6 +1,7 @@
 package com.y1fel.backend.workorder.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.y1fel.backend.common.exception.BizException;
 import com.y1fel.backend.common.response.PageResult;
@@ -55,25 +56,30 @@ public class WorkOrderService {
 
     @Transactional
     public void handle(Long id, HandleWorkOrderRequest request) {
-        WorkOrder order = mustGet(id);
-
-        if (!"pending".equals(order.getStatus())) {
-            throw new BizException("只有待处理工单可以办理");
-        }
-
         if (!"phone".equals(request.getHandleType()) && !"visit".equals(request.getHandleType())) {
             throw new BizException("处理方式只能是 phone 或 visit");
         }
 
         LocalDateTime now = LocalDateTime.now();
-        order.setStatus("auditing");
-        order.setHandleType(request.getHandleType());
-        order.setHandleResult(request.getResult());
-        order.setHandleTime(now);
-        order.setHandlerId(UserContext.getUserId());
-        order.setHandlerName(UserContext.getRealName());
+        WorkOrder update = new WorkOrder();
+        update.setStatus("auditing");
+        update.setHandleType(request.getHandleType());
+        update.setHandleResult(request.getResult());
+        update.setHandleTime(now);
+        update.setHandlerId(UserContext.getUserId());
+        update.setHandlerName(UserContext.getRealName());
+        update.setUpdateTime(now);
 
-        workOrderMapper.updateById(order);
+        int affected = workOrderMapper.update(
+                update,
+                Wrappers.<WorkOrder>lambdaUpdate()
+                        .eq(WorkOrder::getId, id)
+                        .eq(WorkOrder::getStatus, "pending")
+        );
+
+        if (affected != 1) {
+            throw new BizException(409, "工单不存在或已被其他请求处理");
+        }
 
         operationLogService.record(
                 UserContext.getRealName(),
@@ -88,20 +94,25 @@ public class WorkOrderService {
     public void auditPass(Long id) {
         requireAdmin();
 
-        WorkOrder order = mustGet(id);
-
-        if (!"auditing".equals(order.getStatus())) {
-            throw new BizException("只有审核中工单可以审核通过");
-        }
-
         LocalDateTime now = LocalDateTime.now();
-        order.setStatus("done");
-        order.setAuditTime(now);
-        order.setCompleteTime(now);
-        order.setAuditorId(UserContext.getUserId());
-        order.setAuditorName(UserContext.getRealName());
+        WorkOrder update = new WorkOrder();
+        update.setStatus("done");
+        update.setAuditTime(now);
+        update.setCompleteTime(now);
+        update.setAuditorId(UserContext.getUserId());
+        update.setAuditorName(UserContext.getRealName());
+        update.setUpdateTime(now);
 
-        workOrderMapper.updateById(order);
+        int affected = workOrderMapper.update(
+                update,
+                Wrappers.<WorkOrder>lambdaUpdate()
+                        .eq(WorkOrder::getId, id)
+                        .eq(WorkOrder::getStatus, "auditing")
+        );
+
+        if (affected != 1) {
+            throw new BizException(409, "工单不存在或审核状态已发生变化");
+        }
 
         operationLogService.record(
                 UserContext.getRealName(),
@@ -116,20 +127,25 @@ public class WorkOrderService {
     public void auditReject(Long id, AuditRejectRequest request) {
         requireAdmin();
 
-        WorkOrder order = mustGet(id);
-
-        if (!"auditing".equals(order.getStatus())) {
-            throw new BizException("只有审核中工单可以驳回");
-        }
-
         LocalDateTime now = LocalDateTime.now();
-        order.setStatus("pending");
-        order.setRejectReason(request.getReason());
-        order.setAuditTime(now);
-        order.setAuditorId(UserContext.getUserId());
-        order.setAuditorName(UserContext.getRealName());
+        WorkOrder update = new WorkOrder();
+        update.setStatus("pending");
+        update.setRejectReason(request.getReason());
+        update.setAuditTime(now);
+        update.setAuditorId(UserContext.getUserId());
+        update.setAuditorName(UserContext.getRealName());
+        update.setUpdateTime(now);
 
-        workOrderMapper.updateById(order);
+        int affected = workOrderMapper.update(
+                update,
+                Wrappers.<WorkOrder>lambdaUpdate()
+                        .eq(WorkOrder::getId, id)
+                        .eq(WorkOrder::getStatus, "auditing")
+        );
+
+        if (affected != 1) {
+            throw new BizException(409, "工单不存在或审核状态已发生变化");
+        }
 
         operationLogService.record(
                 UserContext.getRealName(),
@@ -196,14 +212,6 @@ public class WorkOrderService {
                 .toList();
 
         return new PageResult<>(list, result.getTotal());
-    }
-
-    private WorkOrder mustGet(Long id) {
-        WorkOrder order = workOrderMapper.selectById(id);
-        if (order == null) {
-            throw new BizException("工单不存在");
-        }
-        return order;
     }
 
     private void requireAdmin() {
